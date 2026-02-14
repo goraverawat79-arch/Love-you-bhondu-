@@ -1,0 +1,110 @@
+<script>
+  /* Floating hearts */
+  function createHeart() {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerHTML = "💖";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.animationDuration = (Math.random() * 3 + 3) + "s";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 6000);
+  }
+  setInterval(createHeart, 350);
+
+  /* No button escape */
+  const noBtn = document.getElementById("no");
+  noBtn.addEventListener("touchstart", moveNo);
+  noBtn.addEventListener("mouseover", moveNo);
+
+  function moveNo() {
+    noBtn.style.left = Math.random() * (window.innerWidth - 80) + "px";
+    noBtn.style.top = Math.random() * (window.innerHeight - 80) + "px";
+  }
+
+  /* Fireworks */
+  const canvas = document.getElementById("fireworks");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  let particles = [];
+
+  function createFirework(x, y) {
+    for (let i = 0; i < 50; i++) {
+      particles.push({
+        x, y,
+        angle: Math.random() * 2 * Math.PI,
+        speed: Math.random() * 5 + 2,
+        radius: Math.random() * 2 + 1,
+        life: 60
+      });
+    }
+  }
+
+  function animateFireworks() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += Math.cos(p.angle) * p.speed;
+      p.y += Math.sin(p.angle) * p.speed;
+      p.life--;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `hsl(${Math.random()*360},100%,60%)`;
+      ctx.fill();
+    });
+    particles = particles.filter(p => p.life > 0);
+    requestAnimationFrame(animateFireworks);
+  }
+  animateFireworks();
+
+  /* YES button → Mini Game */
+  document.getElementById("yes").onclick = () => {
+    document.getElementById("card").innerHTML = `
+      <h1>Bhondu 💖</h1>
+      <p><b>Mini Love Game 🎮</b></p>
+
+      <p>💗 How much do you love me?</p>
+      <input type="range" min="0" max="100" value="50" id="loveRange">
+      <p id="loveText">Hmm… tell me honestly 😌</p>
+
+      <p>🌹 Will you spend your whole life with me?</p>
+      <button onclick="answerLife(true)">YES 💕</button>
+      <button onclick="answerLife(false)">NO 🙈</button>
+
+      <div id="finalStep" style="display:none; margin-top:20px;">
+        <div class="ring">💍</div>
+        <h2>Will you marry me? 💖</h2>
+      </div>
+    `;
+
+    const range = document.getElementById("loveRange");
+    const text = document.getElementById("loveText");
+
+    range.oninput = () => {
+      const v = range.value;
+      if (v < 30) text.innerHTML = "Ouch 😢 my heart is hurting";
+      else if (v < 70) text.innerHTML = "Not bad… but I want more 😏";
+      else text.innerHTML = "OMG 😍 I love you tooooo 💕";
+    };
+  };
+
+  /* Life question */
+  function answerLife(yes) {
+    if (yes) {
+      document.getElementById("finalStep").style.display = "block";
+      setInterval(() => {
+        createFirework(
+          Math.random() * canvas.width,
+          Math.random() * canvas.height / 2
+        );
+      }, 400);
+    } else {
+      alert("Wrong answer 😤 Try again!");
+    }
+  }
+</script>
